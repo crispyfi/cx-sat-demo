@@ -1,0 +1,47 @@
+site_name: AMIGOPODAI
+api_version: "v10.16"
+software_version: "10.16.1030"
+
+ntp_servers:
+  - 10.1.1.1
+  - 10.1.1.2
+  - 10.1.1.3
+syslog_server: 10.1.1.1
+domain_name: amigopodai.com
+dns_servers:
+  - 10.1.1.1
+  - 10.1.1.2
+
+mstp_config_digest: AC36177F50283CD4B83821D8AB26DE62
+
+cpu_threshold: 70
+memory_threshold: 70
+timezone: Australia/NSW
+
+physical_mtu: 9198
+vlan_ip_mtu: 9198
+
+igmp_version: 3
+
+login_banner_prefix: "UNAUTHORISED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED"
+controlplane_acl_name: CONTROLPLANE
+
+ospf_graceful_restart_interval: 300
+ospf_route_min_age: 300
+
+
+devices:
+
+  # Core (VSX pair)
+
+  - hostname: CORE-01
+    ip: clab-cx-sat-demo-core-01
+    persona: core
+    management_vrf: MANAGEMENT
+    mstp_root_instances: [0]
+
+  - hostname: CORE-02
+    ip: clab-cx-sat-demo-core-02
+    persona: core
+    management_vrf: MANAGEMENT
+    mstp_root_instances: [0]

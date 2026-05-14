@@ -1,0 +1,66 @@
+{
+  "freeTextAnnotations": [],
+  "freeShapeAnnotations": [],
+  "trafficRateAnnotations": [],
+  "groupStyleAnnotations": [],
+  "networkNodeAnnotations": [],
+  "nodeAnnotations": [
+    {
+      "position": {
+        "x": 535,
+        "y": 365
+      },
+      "icon": "client",
+      "groupLabelPos": "bottom-center",
+      "id": "host1"
+    },
+    {
+      "position": {
+        "x": 675,
+        "y": 365
+      },
+      "icon": "client",
+      "groupLabelPos": "bottom-center",
+      "id": "host2"
+    },
+    {
+      "position": {
+        "x": 535,
+        "y": 215
+      },
+      "icon": "switch",
+      "groupLabelPos": "bottom-center",
+      "id": "core-01"
+    },
+    {
+      "position": {
+        "x": 675,
+        "y": 215
+      },
+      "icon": "switch",
+      "groupLabelPos": "bottom-center",
+      "id": "core-02"
+    },
+    {
+      "position": {
+        "x": 535,
+        "y": 365
+      },
+      "icon": "client",
+      "groupLabelPos": "bottom-center",
+      "id": "host-01"
+    },
+    {
+      "position": {
+        "x": 675,
+        "y": 365
+      },
+      "icon": "client",
+      "groupLabelPos": "bottom-center",
+      "id": "host-02"
+    }
+  ],
+  "edgeAnnotations": [],
+  "aliasEndpointAnnotations": [],
+  "viewerSettings": {}
+}

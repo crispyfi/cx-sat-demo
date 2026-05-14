@@ -1,0 +1,18 @@
+{
+  "image": "ghcr.io/srl-labs/containerlab/devcontainer-dind-slim:latest",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "16gb",
+    "storage": "32gb"
+  },
+
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {}
+  },
+
+  "mounts": [
+    "source=claude-config,target=/root/.claude,type=volume"
+  ],
+
+  "postCreateCommand": "uv sync"
+}

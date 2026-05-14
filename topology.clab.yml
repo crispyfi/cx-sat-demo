@@ -1,0 +1,40 @@
+name: cx-sat-demo
+topology:
+  kinds:
+    aruba_aoscx:
+      type: aruba_aoscx
+      image: ghcr.io/$GITHUB_USER/arubaos-cx:latest
+    linux:
+      image: ghcr.io/hellt/network-multitool:latest
+  nodes:
+    ### Hosts ###
+    host-01:
+      kind: linux
+      binds:
+        - configs/host-01.sh:/host-01.sh
+      exec:
+        - bash /host-01.sh
+    host-02:
+      kind: linux
+      binds:
+        - configs/host-02.sh:/host-02.sh
+      exec:
+        - bash /host-02.sh
+    ### Core Switches ###    
+    core-01:
+      kind: aruba_aoscx
+      startup-config: configs/core-01-config.txt
+    core-02:
+      kind: aruba_aoscx
+      startup-config: configs/core-02-config.txt
+      stages:
+        create:
+          wait-for:
+            - node: core-01
+              stage: healthy
+  links:
+    - endpoints: [ "core-01:1/1/3", "host-01:eth1" ]
+    - endpoints: [ "core-01:1/1/7", "core-02:1/1/7" ]
+    - endpoints: [ "core-01:1/1/8", "core-02:1/1/8" ]
+    - endpoints: [ "core-01:1/1/9", "core-02:1/1/9" ]
+    - endpoints: [ "core-02:1/1/3", "host-02:eth1" ]

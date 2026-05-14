@@ -1,0 +1,156 @@
+hostname CORE-02
+banner motd !
+
+UNAUTHORISED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED
+!
+user admin group administrators password ciphertext AQBapRGdmUvsqC21vlT6W74MmdLZSl/4YZuFHyaE49t3HtlxYgAAAOcxyoDaN8LlMMwkevymYejC4P4wjZfIGTRcxBxZmH+9k9NK/44vQsgZzI46gV/Fqi81pwdeloXV1e2LNtq23Jjo4pkyB0djWbbECCkg3E3hB2bKeTefx0nodjEjZVa40Nze
+clock timezone australia/nsw
+no usb
+bluetooth disable
+bfd
+bfd detect-multiplier 3
+no ip icmp redirect
+vrf KA
+vrf MANAGEMENT
+ntp server 10.1.1.1 minpoll 4 maxpoll 4 iburst
+ntp server 10.1.1.2 minpoll 4 maxpoll 4 iburst
+ntp server 10.1.1.3 minpoll 4 maxpoll 4 iburst
+ntp enable
+ntp vrf MANAGEMENT
+!
+logging 10.1.1.1 vrf MANAGEMENT
+ssh server vrf MANAGEMENT
+ssh server vrf mgmt
+access-list ip CONTROLPLANE
+    10 permit any any any
+apply access-list ip CONTROLPLANE control-plane vrf MANAGEMENT
+vlan 1
+vlan 10
+    name CORP
+    ip igmp snooping enable
+    ip igmp snooping version 3
+vlan 20
+    name IOT
+    ip igmp snooping enable
+    ip igmp snooping version 3
+vlan 30
+    name SECURITY
+    ip igmp snooping enable
+    ip igmp snooping version 3
+vlan 40
+    name GUEST
+    ip igmp snooping enable
+    ip igmp snooping version 3
+vlan 50
+    name MANAGEMENT
+    ip igmp snooping enable
+    ip igmp snooping version 3
+vlan 999
+    name NATIVE
+    ip igmp snooping enable
+    ip igmp snooping version 3
+spanning-tree
+spanning-tree priority 0
+spanning-tree config-name AMIGOPODAI
+interface mgmt
+    no shutdown
+    ip static 10.0.0.15/24                                     
+    default-gateway 10.0.0.2
+interface lag 256
+    description VSX-ISL
+    no shutdown
+    no routing
+    vlan trunk native 999
+    vlan trunk allowed all
+    lacp mode active
+interface 1/1/1
+    description UNUSED
+interface 1/1/2
+    description UNUSED
+interface 1/1/3
+    description Host-02
+    no shutdown
+    no routing
+    vlan access 20
+    spanning-tree port-type admin-edge
+interface 1/1/4
+    description UNUSED
+interface 1/1/5
+    description UNUSED
+interface 1/1/6
+    description UNUSED
+interface 1/1/7
+    description VSX-Keepalive
+    no shutdown
+    vrf attach KA
+    ip address 192.168.0.1/31                                  
+interface 1/1/8
+    description VSX-ISL
+    no shutdown
+    mtu 9198
+    lag 256
+interface 1/1/9
+    description VSX-ISL
+    no shutdown
+    mtu 9198
+    lag 256
+router ospf 1
+    router-id 10.32.255.2
+    max-metric router-lsa on-startup
+    passive-interface default
+    bfd all-interfaces
+    graceful-restart restart-interval 300
+    area 0.0.0.0
+interface loopback 0
+    description Management
+    vrf attach MANAGEMENT
+    ip address 10.32.255.2/32
+interface vlan 10
+    description CORP
+    ip mtu 9198
+    ip address 10.32.10.252/24
+    active-gateway ip mac 12:01:00:00:00:00
+    active-gateway ip 10.32.10.1
+    ip ospf 1 area 0.0.0.0
+interface vlan 20
+    description IOT
+    ip mtu 9198
+    ip address 10.32.20.252/24
+    active-gateway ip mac 12:01:00:00:00:00
+    active-gateway ip 10.32.20.1
+    ip ospf 1 area 0.0.0.0
+interface vlan 30
+    description SECURITY
+    ip mtu 9198
+    ip address 10.32.30.252/24
+    active-gateway ip mac 12:01:00:00:00:00
+    active-gateway ip 10.32.30.1
+    ip ospf 1 area 0.0.0.0
+interface vlan 40
+    description GUEST
+    ip mtu 9198
+    ip address 10.32.40.252/24
+    active-gateway ip mac 12:01:00:00:00:00
+    active-gateway ip 10.32.40.1
+    ip ospf 1 area 0.0.0.0
+interface vlan 50
+    description MANAGEMENT
+    vrf attach MANAGEMENT
+    ip mtu 9198
+    ip address 10.32.50.252/24
+    active-gateway ip mac 12:01:00:00:00:00
+    active-gateway ip 10.32.50.1
+    ip ospf 1 area 0.0.0.0
+vsx
+    system-mac 02:01:00:00:01:00
+    inter-switch-link lag 256
+    role secondary
+    keepalive peer 192.168.0.0 source 192.168.0.1 vrf KA
+    linkup-delay-timer 10
+ip dns server-address 10.1.1.1 vrf MANAGEMENT
+ip dns server-address 10.1.1.2 vrf MANAGEMENT
+ip dns domain-name amigopodai.com
+!
+https-server vrf MANAGEMENT
+https-server vrf mgmt
+ip igmp snooping drop-unknown vlan-exclusive

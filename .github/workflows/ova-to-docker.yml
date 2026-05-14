@@ -1,0 +1,90 @@
+name: Build & Push ArubaOS-CX Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      ova_zip_url:
+        description: "Download URL for OVA.zip"
+        required: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Current Repo
+        uses: actions/checkout@v4
+
+      - name: Get latest release tag of hellt/vrnetlab
+        id: get_release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=$(gh release list -R hellt/vrnetlab --limit 1 --json tagName --jq '.[0].tagName')
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Checkout hellt/vrnetlab at latest release
+        uses: actions/checkout@v4
+        with:
+          repository: hellt/vrnetlab
+          ref: ${{ steps.get_release.outputs.tag }}
+          path: vrnetlab
+
+      - name: Download OVA ZIP from Direct Link
+        working-directory: vrnetlab/aoscx
+        run: |
+          curl -L "${{ github.event.inputs.ova_zip_url }}" -o arubaos-cx.zip
+          ls -l
+
+      - name: Unzip OVA ZIP file
+        working-directory: vrnetlab/aoscx
+        run: |
+          unzip -o arubaos-cx.zip
+          tar xvf *.ova
+          ls -l
+
+      - name: Find OVA filename and extract version
+        working-directory: vrnetlab/aoscx
+        id: ova_version
+        run: |
+          OVA_FILE=$(ls *.ova | head -n 1)
+          echo "OVA_FILE=$OVA_FILE" >> $GITHUB_ENV
+          # Extract version like "AOS-CX_10_15_1030.ova" -> 10.15.1030, fallback to raw if not match
+          VERSION=$(echo "$OVA_FILE" | sed -E 's/.*_([0-9]+)_([0-9]+)_([0-9]+)\.ova/\1.\2.\3/')
+          if [[ "$VERSION" == "$OVA_FILE" ]]; then
+            VERSION="latest"
+          fi
+          echo "VERSION=$VERSION" | tee -a $GITHUB_ENV
+          echo "OVA_FILE=$OVA_FILE" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        working-directory: vrnetlab/aoscx
+        run: |
+          sudo make docker-image
+          docker image ls
+
+      - name: Tag image for GHCR
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          VERSION="${{ env.VERSION }}"
+          SRC_TAG=$(docker images --format "{{.Tag}}" vrnetlab/aruba_arubaos-cx | head -n 1)
+          docker tag vrnetlab/aruba_arubaos-cx:$SRC_TAG ghcr.io/$OWNER/arubaos-cx:$VERSION
+          docker tag vrnetlab/aruba_arubaos-cx:$SRC_TAG ghcr.io/$OWNER/arubaos-cx:latest
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image to GHCR
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          VERSION="${{ env.VERSION }}"
+          docker push ghcr.io/$OWNER/arubaos-cx:$VERSION
+          docker push ghcr.io/$OWNER/arubaos-cx:latest

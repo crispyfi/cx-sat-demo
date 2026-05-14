@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+
+# Robot Framework output
+output/
+output.xml
+log.html
+report.html
+
+# uv
+.python-version
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# containerlab
+clab-cx-sat-demo/
+*.bak
+*.swp
