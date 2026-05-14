@@ -29,7 +29,7 @@ Each test run drops its artefacts into `output/<hostname>/<YYYYMMDD-HHMMSS>/`.
 
 To view the results, run the following command and then open the forwarded port 8080 URL from the **Ports** tab in VS Code:
 ```bash
-uv run python http.server 8080 --directory /workspaces/cx-sat-demo/output
+python3 -m http.server 8080 --directory /workspaces/cx-sat-demo/output
 ```
 
 Open `log.html` for the per-keyword report with full request/response details, or `report.html` for the pass/fail summary.

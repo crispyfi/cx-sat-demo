@@ -16,7 +16,7 @@ mstp_config_digest: AC36177F50283CD4B83821D8AB26DE62
 
 cpu_threshold: 70
 memory_threshold: 70
-timezone: Australia/NSW
+timezone: Asia/Bangkok
 
 physical_mtu: 9198
 vlan_ip_mtu: 9198

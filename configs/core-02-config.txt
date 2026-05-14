@@ -4,7 +4,7 @@ banner motd !
 UNAUTHORISED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED
 !
 user admin group administrators password ciphertext AQBapRGdmUvsqC21vlT6W74MmdLZSl/4YZuFHyaE49t3HtlxYgAAAOcxyoDaN8LlMMwkevymYejC4P4wjZfIGTRcxBxZmH+9k9NK/44vQsgZzI46gV/Fqi81pwdeloXV1e2LNtq23Jjo4pkyB0djWbbECCkg3E3hB2bKeTefx0nodjEjZVa40Nze
-clock timezone australia/nsw
+clock timezone asia/bangkok
 no usb
 bluetooth disable
 bfd
@@ -15,6 +15,7 @@ vrf MANAGEMENT
 ntp server 10.1.1.1 minpoll 4 maxpoll 4 iburst
 ntp server 10.1.1.2 minpoll 4 maxpoll 4 iburst
 ntp server 10.1.1.3 minpoll 4 maxpoll 4 iburst
+no ntp server pool.ntp.org minpoll 4 maxpoll 4 iburst
 ntp enable
 ntp vrf MANAGEMENT
 !
@@ -112,6 +113,7 @@ interface vlan 10
     active-gateway ip mac 12:01:00:00:00:00
     active-gateway ip 10.32.10.1
     ip ospf 1 area 0.0.0.0
+    no ip ospf passive
 interface vlan 20
     description IOT
     ip mtu 9198
@@ -140,7 +142,6 @@ interface vlan 50
     ip address 10.32.50.252/24
     active-gateway ip mac 12:01:00:00:00:00
     active-gateway ip 10.32.50.1
-    ip ospf 1 area 0.0.0.0
 vsx
     system-mac 02:01:00:00:01:00
     inter-switch-link lag 256
@@ -151,6 +152,7 @@ ip dns server-address 10.1.1.1 vrf MANAGEMENT
 ip dns server-address 10.1.1.2 vrf MANAGEMENT
 ip dns domain-name amigopodai.com
 !
+ip source-interface all interface loopback0 vrf MANAGEMENT
 https-server vrf MANAGEMENT
 https-server vrf mgmt
 ip igmp snooping drop-unknown vlan-exclusive
