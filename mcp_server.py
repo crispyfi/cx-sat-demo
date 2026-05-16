@@ -8,7 +8,8 @@ troubleshooting domain, create its check module and import it here.
 
 from mcp_core import mcp
 
-import vsx_checks  # noqa: F401  (imported for its @mcp.tool registration)
+import vsx_checks     # noqa: F401  (imported for its @mcp.tool registration)
+import config_checks  # noqa: F401
 
 
 if __name__ == "__main__":
