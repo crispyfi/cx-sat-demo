@@ -15,5 +15,11 @@
     "source=claude-config,target=/root/.claude,type=volume"
   ],
 
+  "containerEnv": {
+    "CX_USERNAME": "admin",
+    "CX_PASSWORD": "admin",
+    "CX_API_VERSION": "v10.16"
+  },
+
   "postCreateCommand": "uv sync"
 }
