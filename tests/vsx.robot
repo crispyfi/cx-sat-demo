@@ -7,6 +7,7 @@ Library             ../libraries/CXLibraryVSX.py
 
 Suite Setup         Connect To Device    ${DEVICE_IP}    api_version=${API_VERSION}
 Suite Teardown      Disconnect From Device
+Test Teardown       Log VSX Related Config    ${DEVICE_IP}
 
 
 *** Test Cases ***
