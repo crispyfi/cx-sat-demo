@@ -95,10 +95,12 @@ CX_USERNAME=admin
 CX_PASSWORD=admin
 ```
 
-Two tools are exposed:
+The following tools are exposed:
 
 - `list_devices` — switch hostnames and IPs from `site.yaml`
 - `check_vsx` — runs the VSX ISL, keepalive, and firmware checks against one switch
+- `check_lacp` — checks every LAG member is collecting and distributing on one switch
+- `get_running_config` — fetches the running config of one switch, optionally filtered by element
 
 Then just ask, e.g. *"List the devices, then check VSX health on CORE-01"*.
 
