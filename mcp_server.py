@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-"""MCP server for AOS-CX switch troubleshooting — VSX checks (PoC).
+"""MCP server for AOS-CX switch troubleshooting.
 
-This is a proof-of-concept. It reuses the project's Robot Framework
-domain libraries directly rather than re-implementing anything:
-``_aoscx`` provides the authenticated REST session and ``CXLibraryVSX``
-provides the VSX assertions. Each VSX keyword is invoked outside Robot;
-its pass/fail outcome and the per-field detail it logs are collected
-into a structured response.
+A standalone MCP server that exposes AOS-CX troubleshooting checks as
+tools for Claude Code. VSX is the first tool set; the server is named
+generically so further AOS-CX checks can be added alongside it.
 
-Scope today is VSX only. The intent is to grow into a full AOS-CX
-troubleshooting server by exposing the other CXLibrary* modules the
-same way.
+It builds on the project's domain modules: ``_aoscx`` provides the
+authenticated REST session and ``CXLibraryVSX`` provides the VSX
+checks. Each check's pass/fail outcome and the per-field detail it
+records are collected into a structured response.
 
-Setup (the server is launched by Claude Code via .mcp.json):
-  * CX_USERNAME / CX_PASSWORD  switch credentials (required)
-  * CX_API_VERSION             AOS-CX REST API version (default v10.16)
-  * CX_SITE_FILE               path to site.yaml (default: next to this file)
+Setup:
+  * Switch credentials are read from the repo's ``.env`` file
+    (``CX_USERNAME`` / ``CX_PASSWORD``).
+  * The AOS-CX REST API version is fixed at v10.16.
+  * ``CX_SITE_FILE`` optionally overrides the path to site.yaml
+    (default: next to this file).
 
 site.yaml is read only for the device hostname/IP inventory; no other
 keys in it are used.
@@ -27,31 +27,38 @@ import sys
 from pathlib import Path
 
 import yaml
+from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-# The domain libraries use bare imports (``import _aoscx``); their
-# import root is the libraries/ directory, mirroring how the .robot
-# suites load them via ``Library  ../libraries/...``.
+# The domain modules use bare imports (``import _aoscx``); their import
+# root is the libraries/ directory.
 _REPO_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(_REPO_ROOT / "libraries"))
+
+# Switch credentials (CX_USERNAME / CX_PASSWORD) come from the repo's
+# .env file. Load it explicitly so the server works regardless of the
+# directory Claude Code launches it from.
+load_dotenv(_REPO_ROOT / ".env")
 
 import _aoscx  # noqa: E402
 from CXLibraryVSX import CXLibraryVSX  # noqa: E402
 
 
-SITE_FILE = Path(os.environ.get("CX_SITE_FILE") or _REPO_ROOT / "site.yaml")
-API_VERSION = os.environ.get("CX_API_VERSION") or "v10.16"
+# AOS-CX REST API version, fixed for now.
+API_VERSION = "v10.16"
 
-mcp = FastMCP("aoscx-vsx")
+SITE_FILE = Path(os.environ.get("CX_SITE_FILE") or _REPO_ROOT / "site.yaml")
+
+mcp = FastMCP("aoscx")
 
 
 # =========================================================================
 # Log capture
 # =========================================================================
-# Outside a Robot run, robot.api.logger routes messages to the stdlib
-# logger "RobotFramework" (never to stdout, so MCP stdio stays clean).
-# A buffering handler lets us surface the per-field values the VSX
-# checks log alongside their pass/fail result.
+# The domain modules emit per-field diagnostics to the stdlib logger
+# named "RobotFramework" — and only to its handlers, never to stdout,
+# so MCP stdio stays clean. A buffering handler lets us surface those
+# values alongside each check's pass/fail result.
 
 
 class _LogCapture(logging.Handler):
@@ -67,9 +74,9 @@ class _LogCapture(logging.Handler):
 
 
 _capture = _LogCapture()
-_robot_logger = logging.getLogger("RobotFramework")
-_robot_logger.setLevel(logging.INFO)
-_robot_logger.addHandler(_capture)
+_diag_logger = logging.getLogger("RobotFramework")
+_diag_logger.setLevel(logging.INFO)
+_diag_logger.addHandler(_capture)
 
 
 # =========================================================================
@@ -129,15 +136,14 @@ def check_vsx(device: str) -> dict:
     Args:
         device: Hostname or management IP of a switch in site.yaml.
 
-    Runs three checks, reused verbatim from the CXLibraryVSX Robot
-    library:
+    Runs three VSX checks:
       * vsx_peers_in_sync        ISL operational, peer established and
                                  ready, config sync in-sync
       * vsx_keepalive_established keepalive state is in_sync_established
       * vsx_firmware_match       both VSX peers run identical software
 
     Each check reports status (pass | fail | error), a message, and
-    ``detail`` — the per-field values the check logged, useful for
+    ``detail`` — the per-field values the check recorded, useful for
     pinpointing which part of VSX is unhealthy.
     """
     dev = _resolve(device)

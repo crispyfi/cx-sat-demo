@@ -36,19 +36,15 @@ Open `log.html` for the per-keyword report with full request/response details, o
 
 ## Troubleshooting from Claude Code (MCP)
 
-`mcp_server.py` is a proof-of-concept [MCP](https://modelcontextprotocol.io) server that lets Claude Code troubleshoot the switches directly, reusing the same domain libraries as the Robot tests. It currently covers VSX.
+`mcp_server.py` is an [MCP](https://modelcontextprotocol.io) server that lets Claude Code troubleshoot the switches directly. VSX is the first set of checks; the server is named generically so more AOS-CX checks can be added later.
 
 When you open this repo in Claude Code, the server is picked up automatically from `.mcp.json` — approve it when prompted (use `/mcp` to view or manage servers). Dependencies are installed by `uv sync`.
 
-It needs switch credentials, supplied as environment variables:
-
-- `CX_USERNAME` / `CX_PASSWORD` — required
-- `CX_API_VERSION` — optional, defaults to `v10.16`
-
-The dev container sets these to the lab defaults. When running Claude Code locally, export them before launching:
+Switch credentials are read from the repo's `.env` file:
 
 ```sh
-export CX_USERNAME=admin CX_PASSWORD=admin
+CX_USERNAME=admin
+CX_PASSWORD=admin
 ```
 
 Two tools are exposed:

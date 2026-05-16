@@ -1,13 +1,8 @@
 {
   "mcpServers": {
-    "aoscx-vsx": {
+    "aoscx": {
       "command": "uv",
-      "args": ["run", "python", "mcp_server.py"],
-      "env": {
-        "CX_USERNAME": "${CX_USERNAME}",
-        "CX_PASSWORD": "${CX_PASSWORD}",
-        "CX_API_VERSION": "${CX_API_VERSION:-v10.16}"
-      }
+      "args": ["run", "python", "mcp_server.py"]
     }
   }
 }
