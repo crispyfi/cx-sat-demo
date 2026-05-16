@@ -36,7 +36,7 @@ Open `log.html` for the per-keyword report with full request/response details, o
 
 ## Troubleshooting from Claude Code (MCP)
 
-`mcp_server.py` is an [MCP](https://modelcontextprotocol.io) server that lets Claude Code troubleshoot the switches directly. VSX is the first set of checks; the server is named generically so more AOS-CX checks can be added later.
+`mcp_server.py` is an [MCP](https://modelcontextprotocol.io) server that lets Claude Code troubleshoot the switches directly.
 
 When you open this repo in Claude Code, the server is picked up automatically from `.mcp.json` — approve it when prompted (use `/mcp` to view or manage servers). Dependencies are installed by `uv sync`.
 
