@@ -82,4 +82,26 @@ python3 -m http.server 8080 --directory /workspaces/cx-sat-demo/output
 
 Open `log.html` for the per-keyword report with full request/response details, or `report.html` for the pass/fail summary.
 
+## Troubleshooting from Claude Code (MCP)
+
+`mcp_server.py` is an [MCP](https://modelcontextprotocol.io) server that lets Claude Code troubleshoot the switches directly.
+
+When you open this repo in Claude Code, the server is picked up automatically from `.mcp.json` — approve it when prompted (use `/mcp` to view or manage servers). Dependencies are installed by `uv sync`.
+
+Switch credentials are read from the repo's `.env` file:
+
+```sh
+CX_USERNAME=admin
+CX_PASSWORD=admin
+```
+
+The following tools are exposed:
+
+- `list_devices` — switch hostnames and IPs from `site.yaml`
+- `check_vsx` — runs the VSX ISL, keepalive, and firmware checks against one switch
+- `check_lacp` — checks every LAG member is collecting and distributing on one switch
+- `get_running_config` — fetches the running config of one switch, optionally filtered by element
+
+Then just ask, e.g. *"List the devices, then check VSX health on CORE-01"*.
+
 ---

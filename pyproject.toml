@@ -10,6 +10,7 @@ authors = [
     { name = "Chris Denham" },
 ]
 dependencies = [
+    "mcp",
     "python-dotenv",
     "pyyaml",
     "robotframework",
