@@ -32,8 +32,9 @@ from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
 # The domain modules use bare imports (``import _aoscx``); their import
-# root is the libraries/ directory.
-_REPO_ROOT = Path(__file__).resolve().parent
+# root is the libraries/ directory. This module lives in mcp/, one
+# directory below the repo root.
+_REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT / "libraries"))
 
 # Switch credentials (CX_USERNAME / CX_PASSWORD) come from the repo's
