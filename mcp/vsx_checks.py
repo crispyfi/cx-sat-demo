@@ -105,9 +105,10 @@ def check_vsx(device: str) -> dict:
     problem usually depends on — the keepalive VRF, the keepalive source
     interface, and the ISL LAG and its members — and a ``next_steps``
     list. When a check fails or errors, do not stop at the VSX block:
-    follow up with the get_running_config calls listed in ``next_steps``
-    (element='vsx', element='interface', element='vrf') to inspect that
-    related config before concluding what is wrong.
+    follow the ``next_steps`` in order before concluding what is wrong.
+    If the ISL check fails, ``next_steps`` will begin with a
+    ``check_lacp`` call to inspect LACP member state on the ISL LAG —
+    run that first, before any get_running_config calls.
     """
     report = run_checks(device, CXLibraryVSX, _CHECKS)
     ip = report.get("ip")
@@ -119,4 +120,16 @@ def check_vsx(device: str) -> dict:
             report["related_error"] = f"could not gather related config: {exc}"
         finally:
             _aoscx.disconnect(ip)
+
+    isl_failed = any(
+        c["name"] == "vsx_peers_in_sync" and c["status"] != "pass"
+        for c in report.get("checks", [])
+    )
+    if isl_failed and "next_steps" in report:
+        isl_lag = report.get("related", {}).get("isl_lag", "the ISL LAG")
+        report["next_steps"].insert(
+            0,
+            f"check_lacp(device) — inspect LACP member state for {isl_lag} before checking config",
+        )
+
     return report
