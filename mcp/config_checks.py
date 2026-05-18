@@ -36,8 +36,7 @@ def get_running_config(device: str, element: str = "") -> dict:
     ip = dev.get("ip")
     hostname = dev.get("hostname")
 
-    for key in [k for k in _aoscx._cache if k[0] == ip]:
-        del _aoscx._cache[key]
+    _aoscx.clear_cache(ip)
 
     try:
         _aoscx.connect(ip, API_VERSION)

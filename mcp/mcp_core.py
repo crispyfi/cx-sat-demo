@@ -50,7 +50,7 @@ API_VERSION = "v10.16"
 
 SITE_FILE = Path(os.environ.get("CX_SITE_FILE") or _REPO_ROOT / "site.yaml")
 
-mcp = FastMCP("aoscx")
+mcp = FastMCP("aoscx-mcp")
 
 
 # =========================================================================
@@ -136,8 +136,7 @@ def run_checks(device, library_class, checks):
 
     # Each call is a fresh troubleshooting snapshot — drop any responses
     # _aoscx cached for this device on a previous call.
-    for key in [k for k in _aoscx._cache if k[0] == ip]:
-        del _aoscx._cache[key]
+    _aoscx.clear_cache(ip)
 
     try:
         _aoscx.connect(ip, API_VERSION)

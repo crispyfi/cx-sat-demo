@@ -219,6 +219,20 @@ def cached_get(device_ip, path):
     return _cache[key]
 
 
+def clear_cache(device_ip=None):
+    """Drop cached responses for one device, or all of them.
+
+    With no argument the whole cache is cleared. Pass a device IP to
+    drop only that device's entries — lets a caller take a fresh
+    snapshot of one switch without disturbing others' caches.
+    """
+    if device_ip is None:
+        _cache.clear()
+        return
+    for key in [k for k in _cache if k[0] == device_ip]:
+        del _cache[key]
+
+
 # =========================================================================
 # Endpoint accessors (cached, named for readability)
 # =========================================================================

@@ -19,18 +19,20 @@ import yaml
 from robot import run_cli
 
 
-GLOBAL_RENAMES = {
-    "site_name": "SITE_NAME",
-    "api_version": "API_VERSION",
-    "software_version": "SOFTWARE_VERSION",
-}
-
-DEVICE_RENAMES = {
+# A site.yaml key becomes a Robot variable named after its upper-cased self
+# (site_name -> ${SITE_NAME}). RENAMES holds the only keys where that rule
+# doesn't give the name the tests expect.
+RENAMES = {
     "ip": "DEVICE_IP",
 }
 
 # Per-device keys that are not exported as Robot variables.
 DEVICE_SKIP = {"persona", "hostname", "serial", "part"}
+
+
+def robot_var_name(key):
+    """Map a site.yaml key to its Robot variable name."""
+    return RENAMES.get(key, key.upper())
 
 
 def parse_args(argv=None):
@@ -119,13 +121,11 @@ def build_variables(site, device):
     for key, value in site.items():
         if key == "devices":
             continue
-        robot_key = GLOBAL_RENAMES.get(key, key.upper())
-        vars_out[robot_key] = value
+        vars_out[robot_var_name(key)] = value
     for key, value in device.items():
         if key in DEVICE_SKIP:
             continue
-        robot_key = DEVICE_RENAMES.get(key, key.upper())
-        vars_out[robot_key] = value
+        vars_out[robot_var_name(key)] = value
     # Defaults for keys that are persona-specific in site.yaml — they may be
     # absent for some devices (e.g. VSF_MEMBERS on core), but Robot tests
     # tagged for both personas still reference them as keyword arguments.
