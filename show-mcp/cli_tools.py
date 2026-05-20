@@ -1,5 +1,7 @@
 """CLI show-command tools for the show-mcp MCP server."""
 
+import re
+
 from core import (
     API_VERSION,
     _connect,
@@ -61,7 +63,7 @@ def list_cli_commands(device: str) -> dict:
 
 
 @mcp.tool()
-def run_show_command(device: str, command: str) -> dict:
+def run_show_command(device: str, command: str, filter: str | None = None) -> dict:
     """Execute a show command on a switch via the REST CLI interface.
 
     Use ``list_cli_commands`` first to discover which commands are available
@@ -73,10 +75,18 @@ def run_show_command(device: str, command: str) -> dict:
     state is needed. Only use ``show interface brief`` when a full port
     inventory is required.
 
+    For wide commands that may produce verbose output, pass a ``filter``
+    regex to return only matching lines (e.g. ``filter="up|blocked"`` on
+    ``show interface brief`` to skip ports that are administratively down or
+    have no transceiver installed).
+
     Args:
         device: Hostname or management IP of a switch in site.yaml.
         command: A show command string, e.g. ``show version`` or
                  ``show vsx status``.
+        filter: Optional regex pattern. When provided, only lines matching
+                the pattern (case-insensitive) are returned. Header/separator
+                lines are always kept so the output remains readable.
 
     Returns a dict with the plain-text ``output`` from the switch,
     or an ``error`` key if the command or connection fails.
@@ -98,5 +108,17 @@ def run_show_command(device: str, command: str) -> dict:
         return {"error": f"{type(e).__name__}: {e}"}
     finally:
         _disconnect(ip)
+
+    if filter:
+        try:
+            pattern = re.compile(filter, re.IGNORECASE)
+            # Keep header/separator lines (dashes, equals, empty) plus matching lines
+            filtered = [
+                line for line in output.splitlines()
+                if re.match(r"^[-= ]*$", line) or pattern.search(line)
+            ]
+            output = "\n".join(filtered)
+        except re.error as e:
+            return {"error": f"invalid filter regex {filter!r}: {e}"}
 
     return {"device": hostname, "ip": ip, "command": command, "output": output}
