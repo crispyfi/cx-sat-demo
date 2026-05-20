@@ -55,6 +55,23 @@ def run_show_command(device: str, command: str, include_filter: str | None = Non
       - ``| exclude <regex>``  drop matching lines
       - ``| begin <regex>``    start output from the first matching line
 
+    ## Viewing feature config
+
+    To see the running configuration for a specific feature or interface, use
+    ``show running-config <feature>`` (``show run`` is accepted as shorthand).
+    Examples:
+      - ``show run vsx``              → VSX config block
+      - ``show run interface 1/1/1``  → single interface config
+      - ``show run interface lag256`` → LAG interface config
+      - ``show run vlan 10``          → VLAN config block
+
+    Prefer ``show run <feature>`` over these unsupported or less effective
+    alternatives:
+      - ``show running-config section <feature>`` — not supported on AOS-CX
+      - ``show <feature> config`` / ``show vsx configuration`` — incomplete or ambiguous
+      - ``show running-config | include <keyword>`` — only returns matching lines,
+        losing indented sub-config; use ``| include`` for status output, not config blocks
+
     ## Tab completion on AOS-CX
 
     AOS-CX supports ``?`` at any point in a command to list available
