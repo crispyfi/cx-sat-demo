@@ -3,6 +3,10 @@
     "aoscx-mcp": {
       "command": "uv",
       "args": ["run", "python", "mcp/mcp_server.py"]
+    },
+    "show-mcp": {
+      "command": "uv",
+      "args": ["run", "python", "show-mcp/mcp_server.py"]
     }
   }
 }
