@@ -11,6 +11,7 @@ authors = [
 ]
 dependencies = [
     "mcp",
+    "netmiko",
     "python-dotenv",
     "pyyaml",
     "robotframework",

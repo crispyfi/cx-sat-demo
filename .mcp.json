@@ -7,6 +7,10 @@
     "show-mcp": {
       "command": "uv",
       "args": ["run", "python", "show-mcp/mcp_server.py"]
+    },
+    "aoscx-ssh-mcp": {
+      "command": "uv",
+      "args": ["run", "python", "aoscx-ssh-mcp/mcp_server.py"]
     }
   }
 }
